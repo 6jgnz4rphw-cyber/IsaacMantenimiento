@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parte Diario · Parador de El Hierro</title>
+<style>
+:root{--blue:#164b82;--blue2:#0e3968;--light:#eaf3fc;--border:#d8e1ec;--text:#17324d;--muted:#66788a;--bg:#f5f8fc;--ok:#18844b;--warn:#b87500;--danger:#b3261e}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(135deg,var(--blue2),#2a639b);color:white;padding:18px 22px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px #0002}
+.header{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:12px}.logo{font-size:34px}.title{font-size:21px;font-weight:750}.sub{font-size:13px;opacity:.85;margin-top:2px}
+.container{max-width:1200px;margin:20px auto;padding:0 16px}
+.top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}.field,.card{background:white;border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 3px #1231}
+label{display:block;font-size:13px;font-weight:700;color:var(--blue);margin-bottom:6px}.field{padding:12px}input,select{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-size:15px;color:var(--text);background:white}
+.card{overflow:hidden;margin:14px 0}.section{background:var(--light);padding:10px 16px;font-weight:800;color:var(--blue);font-size:16px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:8px 18px}.row{display:grid;grid-template-columns:28px 1fr 145px 52px;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eef2f6}.row:last-child{border-bottom:0}.icon{font-size:20px;text-align:center}.name{font-size:14px}.unit{font-size:13px;color:var(--muted)}.calc{grid-column:1 / -1;margin:-3px 0 6px 36px;padding:7px 10px;border-radius:7px;background:#eef8f2;color:#18844b;font-size:13px;font-weight:700}.calc.warn{background:#fff3d9;color:#b87500}.actions{display:flex;gap:12px;margin:18px 0}.btn{border:0;border-radius:10px;padding:13px 20px;font-size:15px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:white;flex:1}.secondary{background:white;color:var(--blue);border:1px solid var(--blue);flex:1}
+.nav{display:flex;gap:8px;background:white;border:1px solid var(--border);border-radius:12px;padding:7px;position:sticky;bottom:10px;z-index:5}.nav button{flex:1;border:0;background:white;padding:10px;border-radius:8px;color:var(--muted);cursor:pointer;font-weight:650}.nav button.active{background:var(--light);color:var(--blue)}
+.view{display:none}.view.active{display:block}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{background:white;border:1px solid var(--border);border-radius:12px;padding:15px}.kpi small{color:var(--muted)}.kpi strong{display:block;font-size:25px;margin-top:5px}.table{width:100%;border-collapse:collapse;background:white;border-radius:12px;overflow:hidden}.table th,.table td{padding:10px;border-bottom:1px solid #edf1f5;text-align:left;font-size:13px}.table th{color:var(--blue);background:var(--light)}.empty{text-align:center;padding:35px;color:var(--muted)}
+.status{padding:10px 14px;border-radius:10px;margin:12px 0;font-weight:700}.ok{background:#e6f6ed;color:var(--ok)}.warn{background:#fff3d9;color:var(--warn)}.danger{background:#fde9e7;color:var(--danger)}
+@media(max-width:800px){.top,.grid,.kpis{grid-template-columns:1fr}.row{grid-template-columns:28px 1fr 120px 48px}.title{font-size:17px}}
+</style>
+</head>
+<body>
+<header><div class="header"><div class="brand"><div class="logo">🏨</div><div><div class="title">Parte Diario del Hotel</div><div class="sub">Consumos y parámetros · Parador de El Hierro · Versión 1.0</div></div></div><div id="dateHead"></div></div></header>
+
+<main class="container">
+<section id="inicio" class="view active">
+<div class="top">
+<div class="field"><label>📅 Fecha</label><input id="fecha" type="date"></div>
+<div class="field"><label>👤 Empleado</label><select id="empleado"><option value="">Selecciona empleado</option><option>Isaac</option><option>Flavio</option><option>Heliodoro</option></select></div>
+<div class="field"><label>🕐 Hora</label><input id="hora" type="time"></div>
+</div>
+
+<div class="card"><div class="section">💧 CONSUMOS</div><div class="grid">
+<div class="row"><div class="icon">💧</div><div class="name">Agua</div><input id="agua" type="number" step="0.1" oninput="actualizarRestas()"><div class="unit">m³</div></div>
+<div class="row"><div class="icon">⛽</div><div class="name">Gasoil</div><input id="gasoil" type="number" step="0.1" oninput="actualizarRestas()"><div class="unit">L</div></div>
+<div class="row"><div class="icon">🔥</div><div class="name">Gas</div><input id="gas" type="number" step="0.1"><div class="unit">m³</div></div>
+<div class="calc" id="calcAgua"></div>
+<div class="calc" id="calcGasoil"></div>
+
+<div class="row"><div class="icon">⚡</div><div class="name">Electricidad activa</div><input id="elec" type="number" step="0.1"><div class="unit">kWh</div></div>
+<div class="row"><div class="icon">⚡</div><div class="name">Electricidad reactiva</div><input id="react" type="number" step="0.1"><div class="unit">kVArh</div></div>
+
+<div class="row"><div class="icon">◉</div><div class="name">Presión descarga A</div><input id="pda" type="number" step="0.1"><div class="unit">kPa</div></div>
+<div class="row"><div class="icon">◉</div><div class="name">Presión aspira A</div><input id="paa" type="number" step="0.1"><div class="unit">kPa</div></div>
+<div class="row"><div class="icon">◉</div><div class="name">Presión descarga B</div><input id="pdb" type="number" step="0.1"><div class="unit">kPa</div></div>
+<div class="row"><div class="icon">◉</div><div class="name">Presión aspira B</div><input id="pab" type="number" step="0.1"><div class="unit">kPa</div></div>
+
+
+<div class="row"><div class="icon">🌡️</div><div class="name">T. Ambiente</div><input id="amb" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">🔋</div><div class="name">Acumulador</div><input id="acum" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">↩️</div><div class="name">Retorno</div><input id="ret" type="number" step="0.1"><div class="unit">°C</div></div>
+</div></div>
+
+<div class="card"><div class="section">🏭 SALA DE MÁQUINAS / CALDERA</div><div class="grid">
+<div class="row"><div class="icon">🌡️</div><div class="name">Temperatura sala</div><input id="tsala" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">🌡️</div><div class="name">Temperatura caldera</div><input id="tcaldera" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">◉</div><div class="name">Presión circuito primario</div><input id="pcircuito" type="number" step="0.1"><div class="unit">bar</div></div>
+</div></div>
+
+<div class="card"><div class="section">💧 CONTROL DE AGUA</div><div class="grid">
+<div class="row"><div class="icon">❄️</div><div class="name">Temperatura fría</div><input id="tfria" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">☀️</div><div class="name">Temperatura caliente</div><input id="tcaliente" type="number" step="0.1"><div class="unit">°C</div></div>
+<div class="row"><div class="icon">🧪</div><div class="name">Cloro libre</div><input id="cloro" type="number" step="0.01"><div class="unit">ppm</div></div>
+<div class="row"><div class="icon">💧</div><div class="name">pH</div><input id="ph" type="number" step="0.01"><div class="unit">pH</div></div>
+<div class="row"><div class="icon">🚪</div><div class="name">Número de habitación</div><input id="hab" type="text"><div class="unit">n.º</div></div>
+<div class="row"><div class="icon">🕐</div><div class="name">Hora control agua</div><input id="horaAgua" type="time"><div class="unit"></div></div>
+</div></div>
+
+<div id="status"></div>
+<div class="actions"><button class="btn primary" onclick="guardar()">💾 Guardar parte</button><button class="btn secondary" onclick="mostrar('historico')">📄 Ver histórico</button></div>
+</section>
+
+<section id="historico" class="view">
+<div class="card"><div class="section">📋 HISTÓRICO DE PARTES</div><div id="hist"></div></div>
+</section>
+
+<section id="estadisticas" class="view">
+<div class="kpis">
+<div class="kpi"><small>Partes guardados</small><strong id="k1">0</strong></div>
+<div class="kpi"><small>Última lectura agua</small><strong id="k2">—</strong></div>
+<div class="kpi"><small>Última electricidad</small><strong id="k3">—</strong></div>
+<div class="kpi"><small>Última habitación</small><strong id="k4">—</strong></div>
+</div>
+<div class="card" style="padding:18px"><h3>Indicadores</h3><p>La aplicación conserva las lecturas y puede calcular consumos entre partes consecutivos, así como ratios por habitación ocupada.</p><div id="stats"></div></div>
+</section>
+
+<section id="exportar" class="view">
+<div class="card" style="padding:20px"><h3>📤 Exportar datos</h3><p>Descarga todos los partes guardados en formato CSV para abrirlos con Excel.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" onclick="exportar()">Descargar CSV</button><button class="btn secondary" onclick="exportarJSON()">Copia de seguridad</button></div></div>
+</section>
+
+<section id="ajustes" class="view">
+<div class="card" style="padding:20px"><h3>⚙️ Ajustes</h3><p><b>Restaurar copia de seguridad:</b></p><input type="file" accept=".json" onchange="importarJSON(event)"><hr><p>En esta primera versión los datos se guardan en el navegador del dispositivo. Más adelante podemos añadir usuarios, permisos, sincronización en la nube y conexión con contadores.</p></div>
+</section>
+
+<nav class="nav">
+<button class="active" onclick="mostrar('inicio',this)">🏠<br>Inicio</button>
+<button onclick="mostrar('historico',this)">📊<br>Histórico</button>
+<button onclick="mostrar('estadisticas',this)">▥<br>Estadísticas</button>
+<button onclick="mostrar('exportar',this)">📄<br>Exportar</button>
+<button onclick="mostrar('ajustes',this)">⚙️<br>Ajustes</button>
+</nav>
+</main>
+
+<script>
+const ids=['fecha','empleado','hora','gas','agua','gasoil','elec','react','amb','pda','paa','pdb','pab','acum','ret','tsala','tcaldera','pcircuito','tfria','tcaliente','cloro','ph','hab','horaAgua'];
+const labels={gas:'Gas (m³)',agua:'Agua (m³)',gasoil:'Gasoil (L)',elec:'Electricidad activa (kWh)',react:'Electricidad reactiva (kVArh)',amb:'T. Ambiente (°C)',pda:'Presión descarga A (kPa)',paa:'Presión aspira A (kPa)',pdb:'Presión descarga B (kPa)',pab:'Presión aspira B (kPa)',acum:'Acumulador (°C)',ret:'Retorno (°C)',tsala:'Temperatura sala (°C)',tcaldera:'Temperatura caldera (°C)',pcircuito:'Presión circuito primario (bar)',tfria:'Temperatura fría (°C)',tcaliente:'Temperatura caliente (°C)',cloro:'Cloro libre (ppm)',ph:'pH',hab:'Habitaciones ocupadas',horaAgua:'Hora control agua'};
+function hoy(){let d=new Date();return d.toISOString().slice(0,10)}
+document.getElementById('fecha').value=hoy(); document.getElementById('hora').value=new Date().toTimeString().slice(0,5); document.getElementById('fecha').addEventListener('change',actualizarRestas); document.getElementById('dateHead').textContent=new Date().toLocaleDateString('es-ES');
+function data(){return JSON.parse(localStorage.getItem('partes_parador')||'[]')}
+function guardar(){
+ try {
+ let p={}; ids.forEach(id=>p[id]=document.getElementById(id).value); p.creado=new Date().toISOString();
+ // Guardamos también el consumo calculado respecto al parte del día anterior
+ let anterior = obtenerParteAnterior(p.fecha);
+ if(anterior){
+   p.consumoAgua = (Number(p.agua)-Number(anterior.agua)).toFixed(2);
+   p.consumoGasoil = (Number(p.gasoil)-Number(anterior.gasoil)).toFixed(2);
+ } else {
+   p.consumoAgua = '';
+   p.consumoGasoil = '';
+ }
+ let a=data(); a.push(p); localStorage.setItem('partes_parador',JSON.stringify(a));
+ document.getElementById('status').innerHTML='<div class="status ok">✓ Parte guardado correctamente.</div>';
+ render(); actualizarRestas(); setTimeout(()=>document.getElementById('status').innerHTML='',2500);
+ } catch(e) {
+   console.error(e);
+   document.getElementById('status').innerHTML='<div class="status danger">⚠️ No se ha podido guardar el parte. Inténtalo de nuevo.</div>';
+ }
+}
+function mostrar(id,btn){
+ document.querySelectorAll('.view').forEach(x=>x.classList.remove('active')); document.getElementById(id).classList.add('active');
+ if(btn){document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
+ render();
+}
+
+function obtenerParteAnterior(fecha){
+ let a=data();
+ let objetivo=new Date(fecha+"T00:00:00");
+ let anteriores=a.filter(p=>{
+   if(!p.fecha) return false;
+   let d=new Date(p.fecha+"T00:00:00");
+   return d < objetivo;
+ }).sort((x,y)=>new Date(y.fecha+"T00:00:00")-new Date(x.fecha+"T00:00:00"));
+ return anteriores[0] || null;
+}
+function actualizarRestas(){
+ let fecha=document.getElementById('fecha').value;
+ let anterior=obtenerParteAnterior(fecha);
+ let agua=document.getElementById('agua').value;
+ let gasoil=document.getElementById('gasoil').value;
+ let ca=document.getElementById('calcAgua'), cg=document.getElementById('calcGasoil');
+ if(!anterior){
+   ca.textContent='ℹ️ No hay lectura del día anterior para calcular todavía.';
+   cg.textContent='ℹ️ No hay lectura del día anterior para calcular todavía.';
+   ca.className='calc warn'; cg.className='calc warn'; return;
+ }
+ if(agua!==''){
+   let d=Number(agua)-Number(anterior.agua);
+   ca.textContent='💧 Consumo desde el día anterior: '+d.toFixed(2)+' m³ (lectura anterior: '+anterior.agua+' m³)';
+   ca.className='calc';
+ } else { ca.textContent=''; }
+ if(gasoil!==''){
+   let d=Number(gasoil)-Number(anterior.gasoil);
+   cg.textContent='⛽ Consumo desde el día anterior: '+d.toFixed(2)+' L (lectura anterior: '+anterior.gasoil+' L)';
+   cg.className='calc';
+ } else { cg.textContent=''; }
+}
+function render(){
+ let a=data(); document.getElementById('k1').textContent=a.length;
+ let last=a[a.length-1]; document.getElementById('k2').textContent=last?.agua?last.agua+' m³':'—';document.getElementById('k3').textContent=last?.elec?last.elec+' kWh':'—';document.getElementById('k4').textContent=last?.hab?last.hab:'—';
+ let h=document.getElementById('hist');
+ if(!a.length){h.innerHTML='<div class="empty">No hay partes guardados todavía.</div>'}else{
+ h.innerHTML='<div style="overflow:auto"><table class="table"><thead><tr><th>Fecha</th><th>Hora</th><th>Empleado</th><th>Agua</th><th>Gas</th><th>Gasoil</th><th>Electricidad</th><th>Hab.</th><th>Consumo agua</th><th>Consumo gasoil</th></tr></thead><tbody>'+a.slice().reverse().map(p=>`<tr><td>${p.fecha||''}</td><td>${p.hora||''}</td><td>${p.empleado||''}</td><td>${p.agua||''}</td><td>${p.gas||''}</td><td>${p.gasoil||''}</td><td>${p.elec||''}</td><td>${p.hab||''}</td><td>${p.consumoAgua||'—'} m³</td><td>${p.consumoGasoil||'—'} L</td></tr>`).join('')+'</tbody></table></div>'}
+ let s=document.getElementById('stats');
+ if(a.length<2){s.innerHTML='<div class="empty">Guarda al menos dos partes para calcular consumos entre lecturas.</div>'}else{
+ let x=a[a.length-2],y=a[a.length-1], arr=[];
+ [['agua','m³'],['gas','m³'],['gasoil','L'],['elec','kWh']].forEach(([k,u])=>{let d=Number(y[k])-Number(x[k]);if(Number.isFinite(d))arr.push(`<p><b>${labels[k]}:</b> ${d.toFixed(2)} ${u} desde la lectura anterior.</p>`)});
+ 
+ 
+ s.innerHTML=arr.join('');
+ }}
+
+function importarJSON(ev){
+ let f=ev.target.files[0]; if(!f)return;
+ let r=new FileReader();
+ r.onload=()=>{try{
+   let a=JSON.parse(r.result);
+   if(!Array.isArray(a)) throw new Error();
+   localStorage.setItem('partes_parador',JSON.stringify(a));
+   render(); actualizarRestas(); alert('Copia restaurada correctamente.');
+ }catch(e){alert('El archivo de copia no es válido.');}};
+ r.readAsText(f);
+}
+function exportarJSON(){
+ let a=data(); if(!a.length){alert('No hay datos para guardar.');return}
+ let blob=new Blob([JSON.stringify(a,null,2)],{type:'application/json;charset=utf-8'});
+ let url=URL.createObjectURL(blob), link=document.createElement('a');
+ link.href=url;link.download='copia_parador_el_hierro.json';link.click();URL.revokeObjectURL(url);
+}
+function exportar(){
+ let a=data(); if(!a.length){alert('No hay datos para exportar.');return}
+ let cols=ids, csv=[cols.map(x=>labels[x]||x).join(';')];
+ a.forEach(p=>csv.push(cols.map(k=>String(p[k]??'').replaceAll(';',',')).join(';')));
+ let blob=new Blob(['\ufeff'+csv.join('\\n')],{type:'text/csv;charset=utf-8'}), url=URL.createObjectURL(blob), link=document.createElement('a');
+ link.href=url;link.download='partes_parador_el_hierro.csv';link.click();URL.revokeObjectURL(url);
+}
+render(); actualizarRestas();
+</script>
+</body></html>
